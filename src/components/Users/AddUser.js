@@ -1,66 +1,92 @@
 import Card from '../UI/Card';
 import Button from '../UI/Button'
 import styles from './AddUser.module.css'
-import { useState } from 'react';
 import ErrorModal from '../UI/ErrorModal';
 import Wrapper from '../Helpers/Wrapper';
+import { Component } from 'react';
 
-const AddUser = (props) => {
-    const [username, setUsername] = useState('');
-    const [age, setAge] = useState('');
-    const [idCounter, setIdCounter] = useState(1);
-    const [error, setError] = useState(null);
-    const onChangeUsername = (event) => {
-        setUsername(event.target.value);
+class AddUser extends Component {
+    constructor() {
+        super();
+        this.state = {
+            username: '',
+            age: '',
+            idCounter: 1,
+            error: null
+        };
+        this.onChangeUsername = this.onChangeUsername.bind(this);
+        this.onChangeAge = this.onChangeAge.bind(this);
+        this.validate = this.validate.bind(this);
+        this.addNewUser = this.addNewUser.bind(this);
+        this.clearInputs = this.clearInputs.bind(this);
+        this.onSubmitHanlder = this.onSubmitHanlder.bind(this);
+        this.errorResetHandler = this.errorResetHandler.bind(this);
     }
-    const onChangeAge = (event) => {
-        setAge(event.target.value);
+    onChangeUsername(event) {
+        this.setState({ username: event.target.value })
     }
-    const validate = () => {
-        if (username.trim().length === 0 || age.trim().length === 0) {
-            setError({ title: 'Invalid input', message: 'Please enter (non empty) username and age' });
+    onChangeAge(event) {
+        this.setState({ age: event.target.value })
+    }
+    validate() {
+        if (this.state.username.trim().length === 0 || this.state.age.trim().length === 0) {
+            this.setState({
+                error: { title: 'Invalid input', message: 'Please enter (non empty) username and age' }
+            })
             return false;
         }
-        if (+age < 1) {
-            setError({ title: 'Invalid input', message: 'Please enter positive age' });
+        const age = +this.state.age;
+        if (age < 1) {
+            this.setState({
+                error: { title: 'Invalid input', message: 'Please enter positive age' }
+            })
             return false;
         }
         return true;
     }
-    const addNewUser = () => {
-        const newUser = { username, age, id: idCounter + 1 };
-        props.addNewUser(newUser);
+    addNewUser() {
+        const newUser = {
+            username: this.state.username,
+            age: this.state.age,
+            id: this.state.idCounter + 1
+        };
+        this.props.addNewUser(newUser);
     }
-    const clearInputs = () => {
-        setUsername('');
-        setAge('');
+    clearInputs() {
+        this.setState({
+            username: '',
+            age: ''
+        })
     }
-    const onSubmitHanlder = (event) => {
+    onSubmitHanlder(event) {
         event.preventDefault();
-        if (validate() === false)
+        if (this.validate() === false)
             return;
-        addNewUser();
-        setIdCounter(prevIdCounter => prevIdCounter + 1);
-        clearInputs();
+        this.addNewUser();
+        this.setState(prevState => {
+            return { idCounter: prevState.idCounter + 1 }
+        })
+        this.clearInputs();
     }
-    const errorResetHandler = () => {
-        setError(null);
+    errorResetHandler() {
+        this.setState({ error: null })
     }
-
-    return (
-        <Wrapper>
-            {error && <ErrorModal title={error.title} message={error.message} onConfirm={errorResetHandler} />}
-            <Card className={styles.input}>
-                <form onSubmit={onSubmitHanlder}>
-                    <label htmlFor='username'>Username</label>
-                    <input type='text' onChange={onChangeUsername} value={username} />
-                    <label htmlFor='age'>Age (years)</label>
-                    <input type='number' onChange={onChangeAge} value={age} />
-                    <Button type='submit'>Add User</Button>
-                </form>
-            </Card>
-        </Wrapper>
-    )
+    render() {
+        return (
+            <Wrapper>
+                {this.state.error && <ErrorModal title={this.state.error.title} message={this.state.error.message} onConfirm={this.errorResetHandler} />}
+                <Card className={styles.input}>
+                    <form onSubmit={this.onSubmitHanlder}>
+                        <label htmlFor='username'>Username</label>
+                        <input type='text' onChange={this.onChangeUsername} value={this.state.username} />
+                        <label htmlFor='age'>Age (years)</label>
+                        <input type='number' onChange={this.onChangeAge} value={this.state.age} />
+                        <Button type='submit'>Add User</Button>
+                    </form>
+                </Card>
+            </Wrapper>
+        )
+    }
 }
 
 export default AddUser;
