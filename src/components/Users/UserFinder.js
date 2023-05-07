@@ -1,31 +1,59 @@
-import { Fragment, useState, useEffect } from 'react';
 import UserList from './UserList';
 import classes from './UserFinder.module.css';
+import { Component } from 'react';
 
-const UserFinder = (props) => {
-  const userList = props.userList;
-  const [filteredUsers, setFilteredUsers] = useState(props.userList);
-  const [searchTerm, setSearchTerm] = useState('');
+class UserFinder extends Component {
+  constructor() {
+    super();
+    this.state = {
+      filteredUsers: [],
+      searchTerm: ''
+    }
+    this.searchChangeHandler = this.searchChangeHandler.bind(this);
+  }
 
-  useEffect(() => {
-    setFilteredUsers(
-      userList.filter((user) => user.username.includes(searchTerm))
-    );
-  }, [searchTerm, userList]);
-
-  const searchChangeHandler = (event) => {
-    setSearchTerm(event.target.value);
+  searchChangeHandler(event) {
+    this.setState({ searchTerm: event.target.value });
   };
 
-  return (
-    <Fragment>
-      <div className={classes.finder}>
-        <label>Search User </label>
-        <input type='search' onChange={searchChangeHandler} />
-      </div>
-      <UserList userList={filteredUsers} />
-    </Fragment>
-  );
-};
+  componentDidMount() {
+    const { userList } = this.props;
+    if (userList) {
+      this.setState({ filteredUsers: userList });
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    const { userList } = this.props;
+    if (JSON.stringify(prevProps.userList) !== JSON.stringify(userList) || prevState.searchTerm !== this.state.searchTerm) {
+      //We are doing a shallow comparison here, use a proper comparison for such objects later
+      this.setState({
+        filteredUsers: userList.filter((user) => user.username.includes(this.state.searchTerm))
+      })
+    }
+  }
+
+  componentWillUnmount() {
+    console.log(`5 use cases where componentWillUnmount can be used:
+
+    To clear any pending requests made by the component using setTimeout, setInterval or XMLHttpRequests.
+    To remove any event listeners added by the component to prevent memory leaks.
+    To stop animations or transitions initiated by the component.
+    To perform any cleanup activities like closing connections, files, or clearing any cached data.
+    To cancel any subscriptions, especially in cases where the component is subscribed to external data sources like a WebSocket connection or a Redux store.`)
+  }
+
+  render() {
+    return (
+      <>
+        <div className={classes.finder}>
+          <label>Search User </label>
+          <input type='search' onChange={this.searchChangeHandler} />
+        </div>
+        <UserList userList={this.state.filteredUsers} />
+      </>
+    );
+  }
+}
 
 export default UserFinder;
