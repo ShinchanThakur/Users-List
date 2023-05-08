@@ -4,8 +4,10 @@ import styles from './AddUser.module.css'
 import ErrorModal from '../UI/ErrorModal';
 import Wrapper from '../Helpers/Wrapper';
 import { Component } from 'react';
+import UserContext from '../../store/user-context';
 
 class AddUser extends Component {
+    static contextType = UserContext;
     constructor() {
         super();
         this.state = {
@@ -50,7 +52,7 @@ class AddUser extends Component {
             age: this.state.age,
             id: this.state.idCounter + 1
         };
-        this.props.addNewUser(newUser);
+        this.context.addNewUser(newUser);
     }
     clearInputs() {
         this.setState({

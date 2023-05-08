@@ -1,13 +1,16 @@
 import UserList from './UserList';
 import classes from './UserFinder.module.css';
 import { Component } from 'react';
+import UserContext from '../../store/user-context';
 
 class UserFinder extends Component {
+  static contextType = UserContext;
   constructor() {
     super();
     this.state = {
       filteredUsers: [],
-      searchTerm: ''
+      searchTerm: '',
+      userList: []
     }
     this.searchChangeHandler = this.searchChangeHandler.bind(this);
   }
@@ -17,18 +20,19 @@ class UserFinder extends Component {
   };
 
   componentDidMount() {
-    const { userList } = this.props;
+    const { userList } = this.context;
     if (userList) {
-      this.setState({ filteredUsers: userList });
+      this.setState({ filteredUsers: userList, userList: userList });
     }
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { userList } = this.props;
-    if (JSON.stringify(prevProps.userList) !== JSON.stringify(userList) || prevState.searchTerm !== this.state.searchTerm) {
+    const { userList } = this.context;
+    if (JSON.stringify(prevState.userList) !== JSON.stringify(userList) || prevState.searchTerm !== this.state.searchTerm) {
       //We are doing a shallow comparison here, use a proper comparison for such objects later
       this.setState({
-        filteredUsers: userList.filter((user) => user.username.includes(this.state.searchTerm))
+        filteredUsers: userList.filter((user) => user.username.includes(this.state.searchTerm)),
+        userList: userList
       })
     }
   }
