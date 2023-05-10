@@ -31,6 +31,9 @@ class UserFinder extends Component {
         filteredUsers: userList.filter((user) => user.username.includes(this.state.searchTerm))
       })
     }
+    if (this.state.filteredUsers.length === 0) {
+      throw new Error('No users provided!');
+    }
   }
 
   componentWillUnmount() {
